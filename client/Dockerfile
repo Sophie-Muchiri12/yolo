@@ -3,14 +3,16 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Copy package files
-COPY client/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source code
-COPY client/ .
+COPY . .
 
 # Build application
 RUN npm run build
