@@ -20,7 +20,7 @@ RUN npm run build
 # Production stage
 FROM node:18-alpine
 
-# Install serve globally and curl for health checks
+# Install serve globally 
 RUN npm install -g serve 
 
 # Create non-root user
