@@ -25,15 +25,18 @@ root/
 
 ### 🔧 Build Docker Image
 
-Make sure you're in the root directory. Then run:
+
 
 ```bash
-sudo docker build --no-cache -t sophiesky12/client-app:latest -f client/Dockerfile client/
+sudo docker build -t sophiesky12/client-app:latest -f client/Dockerfile client/
 ```
 
 ### 🛠 Dockerfile (client/Dockerfile)
 
-This project uses a multi-stage Dockerfile
+This project uses a multi-stage Dockerfile reducing the image size to below 400MB
+
+![image](https://github.com/user-attachments/assets/418fdacd-cf38-4b37-9af7-4c30defaa121)
+
 
 ### 📤 Push to Docker Hub (Semantic versioning)
 
@@ -46,6 +49,7 @@ sudo docker push sophiesky12/client-app:v1.0.0
 Client image at:
 👉 [https://hub.docker.com/repository/docker/sophiesky12/client-app](https://hub.docker.com/repository/docker/sophiesky12/client-app)
 
+![image](https://github.com/user-attachments/assets/df432870-8a30-42e7-86d8-44c5b698e0af)
 
 
 ## 🧑‍💻 Author
