@@ -1,7 +1,4 @@
-// This script runs during MongoDB initialization when authentication is enabled
-// The script runs as the root user defined in MONGO_INITDB_ROOT_USERNAME
 
-// Switch to the application database
 db = db.getSiblingDB('yolo_db');
 
 print("Initializing yolo_db database...");

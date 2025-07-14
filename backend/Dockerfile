@@ -1,4 +1,4 @@
-# Use Node.js Alpine for minimal image size
+# Node.js Alpine  minimal image size
 FROM node:18-alpine
 
 # Set working directory
