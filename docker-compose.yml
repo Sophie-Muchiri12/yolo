@@ -17,24 +17,17 @@ services:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - yolo-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
 
   # Backend API
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: sophiesky12/backend:v1.0.0
+    image: sophiesky12/backend-final:v1.0.0
     container_name: yolo-backend
     restart: unless-stopped
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://admin:password123@mongodb:27017/yolo_db?authSource=admin
@@ -45,36 +38,23 @@ services:
       - ./backend/uploads:/app/uploads
     networks:
       - yolo-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
 
   # Frontend Application
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
-    image: sophiesky12/client:v1.0.0
+    image: sophiesky12/clients-final:v1.0.0
     container_name: yolo-frontend
     restart: unless-stopped
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     environment:
       - REACT_APP_API_URL=http://localhost:5000
     ports:
       - "3000:3000"
     networks:
       - yolo-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
 
 networks:
   yolo-network:
