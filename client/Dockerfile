@@ -1,36 +1,34 @@
-# Multi-stage build for optimal size
+# Build stage
 FROM node:18-alpine AS builder
 
 WORKDIR /app
-
-ENV NODE_OPTIONS=--openssl-legacy-provider
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build application
-RUN npm run build
+# Build the application with legacy OpenSSL provider
+RUN NODE_OPTIONS="--openssl-legacy-provider" npm run build
 
 # Production stage
 FROM node:18-alpine
 
-# Install serve globally 
-RUN npm install -g serve 
+# Install serve globally
+RUN npm install -g serve
 
-# Create non-root user
+# Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S frontend -u 1001
 
-# Copy built application
+# Copy built application from builder stage
 COPY --from=builder /app/build /app/build
 
-# Change ownership
+# Change ownership to non-root user
 RUN chown -R frontend:nodejs /app
 
 # Switch to non-root user
@@ -39,7 +37,5 @@ USER frontend
 # Expose port
 EXPOSE 3000
 
-
-
-# Start application
+# Start the application
 CMD ["serve", "-s", "/app/build", "-l", "3000"]
