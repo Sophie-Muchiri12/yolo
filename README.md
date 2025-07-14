@@ -76,7 +76,7 @@ Reduces final image size by ~70% compared to single-stage build
 Uses serve package for efficient static file serving
 
 
-####Docker Images with Semantic Versioning
+#### Docker Images with Semantic Versioning
 
    Both Backend and Client images are versioned and are less than 400MB of size
 
