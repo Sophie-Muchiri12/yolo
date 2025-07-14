@@ -28,14 +28,9 @@ Before running this application, ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/ecommerce-microservice.git
-cd ecommerce-microservice
+git clone git@github.com:Sophie-Muchiri12/yolo.git
+cd yolo
 ```
-
-
-# Application Configuration
-NODE_ENV=production
-PORT=3000
 
 
 
@@ -79,6 +74,26 @@ First stage compiles React application with full development dependencies
 Second stage creates minimal production image serving only built static files
 Reduces final image size by ~70% compared to single-stage build
 Uses serve package for efficient static file serving
+
+
+####Docker Images with Semantic Versioning
+
+   Both Backend and Client images are versioned and are less than 400MB of size
+
+<img width="771" height="170" alt="image" src="https://github.com/user-attachments/assets/aa5589f1-ed08-4211-8f08-b127b74bde0c" />
+
+
+### Backend Image Pushed to Dockerhub
+
+<img width="949" height="601" alt="image" src="https://github.com/user-attachments/assets/18ead98e-05fc-4313-964b-936af638535f" />
+
+
+### Client Image Pushed to Dockerhub
+
+<img width="949" height="601" alt="image" src="https://github.com/user-attachments/assets/69dd15b6-ab58-481f-b7c3-e18bf28d2507" />
+
+
+
 
 
 ## 🚀 Usage
