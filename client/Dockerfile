@@ -15,17 +15,17 @@ COPY . .
 # Build the application with legacy OpenSSL provider
 RUN NODE_OPTIONS="--openssl-legacy-provider" npm run build
 
-# Production stage
+
 FROM node:18-alpine
 
 # Install serve globally
 RUN npm install -g serve
 
-# Create non-root user for security
+
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S frontend -u 1001
 
-# Copy built application from builder stage
+
 COPY --from=builder /app/build /app/build
 
 # Change ownership to non-root user
