@@ -1,0 +1,56 @@
+
+- name: Backend container setup
+  block:
+    - name: Stop existing backend container
+      docker_container:
+        name: "{{ backend_container_name }}"
+        state: absent
+      ignore_errors: yes
+      tags: ['backend']
+
+    - name: Remove existing backend image
+      docker_image:
+        name: "{{ backend_image }}"
+        state: absent
+        force_absent: yes
+      ignore_errors: yes
+      tags: ['backend']
+
+    - name: Build backend Docker image
+      docker_image:
+        build:
+          path: "{{ app_directory }}/backend"
+          pull: yes
+        name: "{{ backend_image }}"
+        tag: latest
+        source: build
+        force_source: yes
+      tags: ['backend']
+
+    - name: Run backend container
+      docker_container:
+        name: "{{ backend_container_name }}"
+        image: "{{ backend_image }}:latest"
+        state: started
+        restart_policy: always
+        ports:
+          - "{{ backend_port }}:5000"
+        
+        env:
+          MONGODB_URI: "mongodb://{{ mongodb_container_name }}:27017/yolodb"
+        links:
+          - "{{ mongodb_container_name }}:mongodb"
+      tags: ['backend']
+
+    - name: Wait for backend to be ready
+      wait_for:
+        port: "{{ backend_port }}"
+        host: "127.0.0.1"
+        delay: 15
+        timeout: 120
+      tags: ['backend']
+
+  rescue:
+    - name: Handle backend setup errors
+      debug:
+        msg: "Error setting up backend: {{ ansible_failed_result.msg }}"
