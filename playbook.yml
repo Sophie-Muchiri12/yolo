@@ -32,7 +32,7 @@
       tags: ['always']
 
     - name: Verify all containers are running
-      command: docker ps --format "table {{.Names}}\t{{.Status}}"
+      shell: docker ps --format "table {{ '{{.Names}}' }}\t{{ '{{.Status}}' }}"
       register: container_status
       
     - name: Show container status
