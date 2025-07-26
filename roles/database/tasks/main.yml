@@ -1,65 +1,16 @@
+- name: Create Docker network
+  docker_network:
+    name: yolo_yolo-network
+    state: present
 
 
-- name: Docker installation and configuration
-  block:
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-      tags: ['docker-install']
-
-    - name: Add Docker repository
-      apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-        state: present
-      tags: ['docker-install']
-
-    - name: Install Docker packages
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-        state: present
-        update_cache: yes
-      tags: ['docker-install']
-
-    - name: Start and enable Docker service
-      systemd:
-        name: docker
-        state: started
-        enabled: yes
-      tags: ['docker-service']
-
-    - name: Add user to docker group
-      user:
-        name: "{{ app_user }}"
-        groups: docker
-        append: yes
-      tags: ['docker-permissions']
-
-    - name: Install Docker Compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
-        dest: /usr/local/bin/docker-compose
-        mode: '0755'
-      tags: ['docker-compose']
-
-    - name: Install Python Docker library
-      pip:
-        name:
-          - docker
-          - docker-compose
-        state: present
-      tags: ['docker-python']
-
-    - name: Create Docker network
-      docker_network:
-        name: "{{ docker_network_name }}"
-        state: present
-      tags: ['docker-network']
-
-  rescue:
-    - name: Handle Docker installation errors
-      debug:
-        msg: "Error installing Docker: {{ ansible_failed_result.msg }}"
+- name: Run MongoDB container
+  docker_container:
+    name: yolo-mongodb
+    image: mongo:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "27017:27017"
+    networks:
+      - name: yolo_yolo-network
