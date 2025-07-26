@@ -1,0 +1,41 @@
+
+- name: Deploy YOLO E-commerce Application with Ansible
+  hosts: webservers
+  become: yes
+  vars_files:
+    - group_vars/all.yml
+  
+  pre_tasks:
+    - name: Display deployment information
+      debug:
+        msg: 
+          - "Starting deployment of {{ app_name }}"
+          - "Repository: {{ repo_url }}"
+          - "Target directory: {{ app_directory }}"
+      tags: ['always']
+
+  roles:
+    - { role: common, tags: ['common', 'setup'] }
+    - { role: docker, tags: ['docker', 'setup'] }
+    - { role: database, tags: ['database', 'mongodb'] }
+    - { role: backend, tags: ['backend', 'api'] }
+    - { role: frontend, tags: ['frontend', 'web'] }
+
+  post_tasks:
+    - name: Display application access information
+      debug:
+        msg:
+          - "Deployment completed successfully!"
+          - "Frontend accessible at: http://localhost:{{ frontend_port }}"
+          - "Backend API at: http://localhost:{{ backend_port }}"
+          - "MongoDB running on port: {{ mongodb_port }}"
+      tags: ['always']
+
+    - name: Verify all containers are running
+      command: docker ps --format "table {{.Names}}\t{{.Status}}"
+      register: container_status
+      
+    - name: Show container status
+      debug:
+        var: container_status.stdout_lines
+      tags: ['always']

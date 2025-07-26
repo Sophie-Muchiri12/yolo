@@ -1,0 +1,46 @@
+
+- name: System preparation and repository setup
+  block:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      tags: ['setup']
+
+    - name: Install required system packages
+      apt:
+        name:
+          - git
+          - curl
+          - software-properties-common
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+      tags: ['setup']
+
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+      tags: ['setup']
+
+    - name: Clone application repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_directory }}"
+        force: yes
+        version: master
+      become_user: "{{ app_user }}"
+     
+      tags: ['clone']
+
+  rescue:
+    - name: Handle setup errors
+      debug:
+        msg: "Error in common setup: {{ ansible_failed_result.msg }}"

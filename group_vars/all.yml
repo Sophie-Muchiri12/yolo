@@ -1,0 +1,26 @@
+
+app_name: yolo-ecommerce
+repo_url: https://github.com/Sophie-Muchiri12/yolo.git
+app_directory: ~/DevOps-Course/yolo
+app_user: vagrant
+
+# Docker configuration
+docker_compose_version: "1.29.2"
+
+# Database configuration
+mongodb_container_name: yolo_db
+mongodb_port: 27017
+mongodb_data_path: ~/DevOps-Course/yolo/mongo-init.js
+
+# Backend configuration
+backend_container_name: backend-final
+backend_port: 5000
+backend_image: backend-final
+
+# Frontend configuration
+frontend_container_name: clients-app
+frontend_port: 3000
+frontend_image: client-final
+
+# Network configuration
+# docker_network_name: yolo_network
