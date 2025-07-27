@@ -1,0 +1,32 @@
+---
+# Application configuration
+app_name: yolo-ecommerce-stage2
+repo_url: https://github.com/Sophie-Muchiri12/yolo.git
+app_directory: /home/vagrant/yolo
+app_user: vagrant
+
+# Docker configuration
+docker_compose_version: "1.29.2"
+
+# Database configuration
+mongodb_container_name: yolo_mongodb_stage2
+mongodb_port: 27017
+mongodb_data_path: /home/vagrant/mongodb/data
+mongodb_database: yolo_db
+
+# Backend configuration
+backend_container_name: yolo_backend_stage2
+backend_port: 5000
+backend_image: yolo-backend-stage2
+
+# Frontend configuration
+frontend_container_name: yolo_frontend_stage2
+frontend_port: 3000
+frontend_image: yolo-client-stage2
+
+# Network configuration
+docker_network_name: yolo_network_stage2
+
+# Stage 2 specific
+stage: "stage2"
+terraform_managed: true
