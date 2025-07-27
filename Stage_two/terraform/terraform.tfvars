@@ -1,0 +1,5 @@
+project_name = "yolo-ecommerce-stage2"
+environment  = "development"
+vm_name      = "yolo-stage2-vm"
+vm_ip        = "192.168.56.20"
+repo_url     = "https://github.com/Sophie-Muchiri12/yolo.git"

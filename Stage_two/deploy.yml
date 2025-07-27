@@ -1,0 +1,54 @@
+---
+- name: Stage 2 - Terraform Infrastructure Provisioning and Ansible Configuration
+  hosts: localhost
+  gather_facts: no
+  vars:
+    terraform_dir: "{{ playbook_dir }}/terraform"
+    ansible_dir: "{{ playbook_dir }}/ansible"
+  
+  tasks:
+    - name: Display Stage 2 deployment start
+      debug:
+        msg:
+          - "Starting Stage 2 deployment with Terraform + Ansible"
+          - "Terraform directory: {{ terraform_dir }}"
+          - "Ansible directory: {{ ansible_dir }}"
+      tags: ['always']
+
+    - name: Initialize Terraform
+      terraform:
+        project_path: "{{ terraform_dir }}"
+        state: present
+        force_init: true
+      register: terraform_output
+      tags: ['terraform', 'provision']
+
+    - name: Display Terraform outputs
+      debug:
+        msg:
+          - "VM IP: {{ terraform_output.outputs.vm_ip.value }}"
+          - "VM Name: {{ terraform_output.outputs.vm_name.value }}"
+          - "Frontend URL: {{ terraform_output.outputs.application_urls.value.frontend }}"
+          - "Backend URL: {{ terraform_output.outputs.application_urls.value.backend }}"
+      tags: ['terraform', 'provision']
+
+    - name: Wait for VM to be accessible
+      wait_for:
+        host: "{{ terraform_output.outputs.vm_ip.value }}"
+        port: 22
+        delay: 30
+        timeout: 300
+      tags: ['provision']
+
+    - name: Add provisioned VM to inventory
+      add_host:
+        hostname: "{{ terraform_output.outputs.vm_ip.value }}"
+        groups: webservers
+        ansible_user: vagrant
+        ansible_ssh_private_key_file: "{{ terraform_dir }}/.vagrant/machines/default/virtualbox/private_key"
+        ansible_python_interpreter: /usr/bin/python3
+      tags: ['provision']
+
+- name: Import Ansible configuration playbook
+  import_playbook: ansible/playbook.yml
+  tags: ['configure', 'ansible']

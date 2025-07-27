@@ -1,0 +1,49 @@
+---
+- name: Deploy YOLO E-commerce Application - Stage 2 (Terraform + Ansible)
+  hosts: webservers
+  become: yes
+  vars_files:
+    - group_vars/all.yml
+  
+  pre_tasks:
+    - name: Display Stage 2 deployment information
+      debug:
+        msg: 
+          - "Starting Stage 2 deployment of {{ app_name }}"
+          - "Repository: {{ repo_url }}"
+          - "Target directory: {{ app_directory }}"
+          - "Terraform managed: {{ terraform_managed }}"
+          - "Stage: {{ stage }}"
+      tags: ['always']
+
+    - name: Wait for system to be ready
+      wait_for_connection:
+        timeout: 300
+      tags: ['always']
+
+  roles:
+    - { role: common, tags: ['common', 'setup'] }
+    - { role: docker, tags: ['docker', 'setup'] }
+    - { role: database, tags: ['database', 'mongodb'] }
+    - { role: backend, tags: ['backend', 'api'] }
+    - { role: frontend, tags: ['frontend', 'web'] }
+
+  post_tasks:
+    - name: Display Stage 2 application access information
+      debug:
+        msg:
+          - "Stage 2 deployment completed successfully!"
+          - "Frontend accessible at: http://{{ ansible_default_ipv4.address }}:{{ frontend_port }}"
+          - "Backend API at: http://{{ ansible_default_ipv4.address }}:{{ backend_port }}"
+          - "MongoDB running on port: {{ mongodb_port }}"
+          - "This deployment was provisioned by Terraform and configured by Ansible"
+      tags: ['always']
+
+    - name: Verify all Stage 2 containers are running
+      shell: docker ps --format "table {{ '{{' }}.Names{{ '}}' }}\t{{ '{{' }}.Status{{ '}}' }}"
+      register: container_status
+      
+    - name: Show Stage 2 container status
+      debug:
+        var: container_status.stdout_lines
+      tags: ['always']

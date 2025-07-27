@@ -1,0 +1,16 @@
+- name: Create Docker network
+  docker_network:
+    name: yolo_yolo-network
+    state: present
+
+
+- name: Run MongoDB container
+  docker_container:
+    name: yolo-mongodb
+    image: mongo:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "27017:27017"
+    networks:
+      - name: yolo_yolo-network
