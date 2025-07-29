@@ -124,16 +124,16 @@ http://localhost:3000
 <img width="1200" height="690" alt="image" src="https://github.com/user-attachments/assets/8bd16dcb-867a-47c8-829f-0f64676b1e36" />
 
 
-Stage 2: Terraform + Ansible Integration
+### Stage 2: Terraform + Ansible Integration
 
-Architecture
+#### Architecture
 This stage implements a hybrid IaC approach where:
 
 Terraform handles infrastructure provisioning (VM creation, networking, etc.)
 Ansible manages configuration and application deployment
 Integration allows both tools to invoke each other for seamless automation
 
-Key Features
+#### Key Features
 🚀 Single Command Deployment
 bash
 ```
