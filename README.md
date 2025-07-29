@@ -80,12 +80,8 @@ ansible webservers -m ping
 # 3. Run complete deployment
 ansible-playbook playbook.yml
 
-# 4. Or deploy specific components
-ansible-playbook playbook.yml --tags "common,docker"
-ansible-playbook playbook.yml --tags "database"
-ansible-playbook playbook.yml --tags "backend,frontend"
 
-# 5. Verify deployment
+# 4. Verify deployment
 
 http://localhost:5000/api
 http://localhost:3000
@@ -154,3 +150,13 @@ Deploy the complete YOLO e-commerce application
 
 <img width="1291" height="687" alt="image" src="https://github.com/user-attachments/assets/49692d6b-ebd4-44e3-8229-0a08deedac01" />
 
+
+#### Project Commits:
+
+Check all closed pull requests, their messages and number of commits on each closed pull request
+
+
+
+#### Pure Dockerized work
+
+My complete dockerized implementation is available in the docker-main branch. This branch contains the pure Docker setup for the entire project.
