@@ -1,4 +1,4 @@
-# backend-deployment.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: sophie-muchiri12/yolo-backend:latest
+        image: sophie-muchiri12/yolo-backend:v1.0.0
         ports:
         - containerPort: 5000
         env:
