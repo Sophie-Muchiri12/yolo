@@ -13,6 +13,9 @@ import giacket from '../images/products/giacket.png';
 import tshirt_ladies from '../images/products/tshirt_ladies.png';
 import Default_image from '../images/product_image.jpeg'
 
+// Use environment variable or fallback to your backend IP
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://34.134.71.143:5000/api';
+
 const actualProductList = [
     {
         name: 'T-Shirt',
@@ -64,8 +67,6 @@ const actualProductList = [
     }
 ]
 
-
-
 class ProductControl extends Component {
     
     constructor(props)  {
@@ -75,151 +76,216 @@ class ProductControl extends Component {
             actualProductList: [],
             selectedProduct: null,
             editProduct: false,
-            uploadPhoto: null
-            
+            uploadPhoto: null,
+            loading: false,
+            error: null
         };
     }
     
     componentDidMount(){
-        axios.get('http://localhost:5000/api/products')
-            .then(res =>{
-                console.log(res)
+        this.setState({ loading: true });
+        axios.get(`${API_BASE_URL}/products`)
+            .then(res => {
+                console.log('API Response:', res);
                 this.setState({
-                    actualProductList: res.data
-                })
+                    actualProductList: res.data,
+                    loading: false
+                });
             })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+                this.setState({
+                    error: 'Failed to load products from server',
+                    loading: false,
+                    actualProductList: actualProductList // Fallback to hardcoded data
+                });
+            });
     }
-    handleEditProductClick = () =>{
-        console.log('HandleEditClick reached!!')
-        console.log(this.state.selectedProduct)
+
+    handleEditProductClick = () => {
+        console.log('HandleEditClick reached!!');
+        console.log(this.state.selectedProduct);
         this.setState({
             editProduct: true
-        })
+        });
     }
-    handleAddButtonClick = (id) =>{
+
+    handleAddButtonClick = (id) => {
         const BuyProduct = this.state.actualProductList.filter(product => product._id === id)[0];
-        BuyProduct.quantity = BuyProduct.quantity - 1;
-        if (BuyProduct.quantity <= 0) {
-            BuyProduct.quantity = "Product is not Available"
+        if (BuyProduct && typeof BuyProduct.quantity === 'number') {
+            BuyProduct.quantity = BuyProduct.quantity - 1;
+            if (BuyProduct.quantity <= 0) {
+                BuyProduct.quantity = "Product is not Available";
+            }
+            this.setState({
+                selectedProduct: BuyProduct
+            });
         }
-        this.setState({
-            selectedProduct: BuyProduct
-        })
     }
 
     handleClick = () => {
         if(this.state.editProduct){
             this.setState({
                 editProduct: false
-            })
-        }else if (this.state.selectedProduct != null){
+            });
+        } else if (this.state.selectedProduct != null){
             this.setState({
                 formVisibleOnPage: false,
                 selectedProduct: null
             });
-        }else {
+        } else {
             this.setState(prevState => ({
                 formVisibleOnPage: !prevState.formVisibleOnPage
             }));
         }
     }
-    // handlePhotoUpload = (photo)=>{
-    //     console.log(photo.file)
-    //     this.setState({
-    //         uploadPhoto: file.file
-    //     })
-
-        
-    // }
 
     // Method to handle adding a new product
-    handleAddingNewProduct = (newProduct) =>{
-        // if (newProduct.photo === undefined){
-        //     newProduct.photo = Default_image
-        // }
-        // console.log(newProduct.name)
-        // const newProductList = this.state.actualProductList.concat(newProduct)
-        // var formData = new FormData()
-
-        // formData.append('data',newProduct)
-        // for (let key of Object.keys(newProduct)){
-        //     formData.set(key, newProduct[key])
-        // }
-        // formData.append('myFile', this.state.uploadPhoto)
-
-        // console.log(formData)   
-        // var formData = new FormData();
-        // formData.append('myImage',newProduct);
-        // const config = {
-        //     headers: {
-        //         'content-type': 'multipart/form-data'
-        //     }
-        // };
-        // console.log(formData) 
-        // for (var pair of formData.entries()) {
-        //     console.log(pair[0]+ ', ' + pair[1]); 
-        // }       
-        // console.log(...formData)
-        axios.post('http://localhost:5000/api/products', newProduct)
-            .then(res => console.log(res.data))
-        this.setState({
-            formVisibleOnPage: false
-        })
+    handleAddingNewProduct = (newProduct) => {
+        this.setState({ loading: true });
+        
+        axios.post(`${API_BASE_URL}/products`, newProduct)
+            .then(res => {
+                console.log('Product added:', res.data);
+                // Refresh the product list
+                return axios.get(`${API_BASE_URL}/products`);
+            })
+            .then(res => {
+                this.setState({
+                    actualProductList: res.data,
+                    formVisibleOnPage: false,
+                    loading: false
+                });
+            })
+            .catch(error => {
+                console.error('Error adding product:', error);
+                this.setState({
+                    error: 'Failed to add product',
+                    loading: false
+                });
+            });
     };
-    handleDeletingProduct = (id) =>{
-        axios.delete('http://localhost:5000/api/products/'+id)
-            .then(res => console.log(res.data))
-            .catch((error) =>{
-                console.log(error)
+
+    handleDeletingProduct = (id) => {
+        this.setState({ loading: true });
+        
+        axios.delete(`${API_BASE_URL}/products/${id}`)
+            .then(res => {
+                console.log('Product deleted:', res.data);
+                this.setState({
+                    actualProductList: this.state.actualProductList.filter(product => product._id !== id),
+                    formVisibleOnPage: false,
+                    selectedProduct: null,
+                    loading: false
+                });
             })
-            this.setState({
-                actualProductList: this.state.actualProductList.filter(product => product._id !== id),
-                formVisibleOnPage: false,
-                selectedProduct: null
-            })
+            .catch(error => {
+                console.error('Error deleting product:', error);
+                this.setState({
+                    error: 'Failed to delete product',
+                    loading: false
+                });
+            });
     }
     
     // Method to handle click event on a product
     handleChangingSelectedProduct = (id) => {
-        console.log(id)
+        console.log('Product selected:', id);
         const selectedProduct = this.state.actualProductList.filter(product => product._id === id)[0];
         this.setState({selectedProduct: selectedProduct});
     }
-    handleEditingProduct = (editedProduct) =>{
 
-        axios.put('http://localhost:5000/api/products/' + this.state.selectedProduct._id, editedProduct)
-            .then(res =>console.log(res.data))
+    handleEditingProduct = (editedProduct) => {
+        this.setState({ loading: true });
         
-        this.setState({
-            editProduct: false,
-            formVisibleOnPage: false
-        })
-        window.location = '/';
+        axios.put(`${API_BASE_URL}/products/${this.state.selectedProduct._id}`, editedProduct)
+            .then(res => {
+                console.log('Product updated:', res.data);
+                // Refresh the product list
+                return axios.get(`${API_BASE_URL}/products`);
+            })
+            .then(res => {
+                this.setState({
+                    actualProductList: res.data,
+                    editProduct: false,
+                    formVisibleOnPage: false,
+                    selectedProduct: null,
+                    loading: false
+                });
+            })
+            .catch(error => {
+                console.error('Error updating product:', error);
+                this.setState({
+                    error: 'Failed to update product',
+                    loading: false
+                });
+            });
     }
 
     render() {
         let currentlyVisibleState = null;
         let buttonText = null;
-        // let addProductButton = null;
-        if(this.state.editProduct){
-            currentlyVisibleState = <EditProductForm  product ={this.state.selectedProduct} onEditProduct = {this.handleEditingProduct} />
-            buttonText = "Back to Product Detail "
-        }else if (this.state.selectedProduct != null){
-            currentlyVisibleState = < ProductDetail product = {this.state.selectedProduct} onBuyButtonClick ={this.handleAddButtonClick}  onDeleteProduct = {this.handleDeletingProduct} onEditProductClick = {this.handleEditProductClick}/>
-            buttonText = "Back to product list"
-        }else if (this.state.formVisibleOnPage){
-            currentlyVisibleState = < NewProductForm onNewProductCreation = {this.handleAddingNewProduct} onPhotoUpload={this.handlePhotoUpload} />
-            buttonText = "Back to product list"
-        }else{
-            currentlyVisibleState = < ProductList productList = {this.state.actualProductList} onProductSelection={this.handleChangingSelectedProduct}  />
-            buttonText = "Add a product"
-            // addProductButton = <button onClick={this.handleClick} className="see-all-products text-center mx-auto">Add a product</button>
+
+        // Show loading state
+        if (this.state.loading) {
+            currentlyVisibleState = <div className="loading">Loading...</div>;
+            buttonText = "Loading...";
         }
+        // Show error message if any
+        else if (this.state.error) {
+            currentlyVisibleState = (
+                <div className="error">
+                    <p>Error: {this.state.error}</p>
+                    <ProductList 
+                        productList={this.state.actualProductList} 
+                        onProductSelection={this.handleChangingSelectedProduct}  
+                    />
+                </div>
+            );
+            buttonText = "Add a product";
+        }
+        // Normal flow
+        else if(this.state.editProduct){
+            currentlyVisibleState = (
+                <EditProductForm  
+                    product={this.state.selectedProduct} 
+                    onEditProduct={this.handleEditingProduct} 
+                />
+            );
+            buttonText = "Back to Product Detail";
+        } else if (this.state.selectedProduct != null){
+            currentlyVisibleState = (
+                <ProductDetail 
+                    product={this.state.selectedProduct} 
+                    onBuyButtonClick={this.handleAddButtonClick}  
+                    onDeleteProduct={this.handleDeletingProduct} 
+                    onEditProductClick={this.handleEditProductClick}
+                />
+            );
+            buttonText = "Back to product list";
+        } else if (this.state.formVisibleOnPage){
+            currentlyVisibleState = (
+                <NewProductForm 
+                    onNewProductCreation={this.handleAddingNewProduct} 
+                    onPhotoUpload={this.handlePhotoUpload} 
+                />
+            );
+            buttonText = "Back to product list";
+        } else {
+            currentlyVisibleState = (
+                <ProductList 
+                    productList={this.state.actualProductList} 
+                    onProductSelection={this.handleChangingSelectedProduct}  
+                />
+            );
+            buttonText = "Add a product";
+        }
+
         return (
             <React.Fragment>
                 <AddProduct 
-                buttonText = {buttonText}
-                whenButtonClicked = {this.handleClick}
+                    buttonText={buttonText}
+                    whenButtonClicked={this.handleClick}
                 />
                 
                 {currentlyVisibleState}
@@ -229,4 +295,3 @@ class ProductControl extends Component {
 }
 
 export default ProductControl;
-
