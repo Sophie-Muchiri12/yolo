@@ -20,16 +20,16 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: sophiesky12/clients-final:v1.0.0
+        image: sophiesky12/clients-latest:v1.0.0
         ports:
         - containerPort: 3000
         env:
         - name: REACT_APP_API_URL
-          value: "http://backend-service:5000"
+          value: "http://34.134.71.143:5000/api"
         resources:
           requests:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "50m"
           limits:
             memory: "256Mi"
             cpu: "200m"
