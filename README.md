@@ -1,162 +1,156 @@
-# Configuration Management with Ansible & Terraform
+# YOLO E-commerce Application - Kubernetes Deployment
 
-## 🚀 Project Overview
+A full-stack e-commerce application featuring a Node.js/Express backend API, React frontend, and MongoDB database, containerized and deployed on Google Kubernetes Engine (GKE).
 
-The Yolo (master branch) demonstrates  practices using Infrastructure as Code (IaC) and Configuration Management to automate the deployment of the containerized e-commerce application. The project is implemented in two progressive stages:
+## 🚀 Live Application
 
-- **Stage 1**: Pure Ansible automation for configuration management
-- **Stage 2**: Terraform + Ansible integration for complete infrastructure automation
+### 🌐 Demo Instance (Always Available)
+**Live Demo URL**: 
+frontend:`http://34.134.139.245/` 
+backend-api-fetch: `http://34.134.71.143:5000/api/products`
 
-## 🏗️ Architecture
+> **Note**: This is my deployed instance running on my GKE cluster
 
-### Application Stack
-- **Frontend**: React-based e-commerce client
-- **Backend**: Node.js/Express REST API
-- **Database**: MongoDB with persistent data storage
-- **Containerization**: Docker containers with inter-service networking
-- **Infrastructure**: Vagrant-provisioned Ubuntu VMs
+### 🛠️ Deploy Your Own Instance
+Follow the instructions below to deploy on your own GKE cluster and get your own unique URL.
 
-### Technology Stack
-- **Configuration Management**: Ansible
-- **Infrastructure Provisioning**: Terraform (Stage 2)
-- **Containerization**: Docker & Docker Compose
-- **Virtualization**: Vagrant + VirtualBox
-- **Version Control**: Git with feature branching
+## 📋 Project Overview
 
+This project demonstrates the containerization and orchestration of a three-tier e-commerce application using Docker and Kubernetes. The application includes:
+
+- **Frontend**: React.js application for user interface
+- **Backend**: Node.js/Express API server
+- **Database**: MongoDB with persistent storage
 
 
-## 🎯 Stage 1: Ansible Configuration Management
 
-### Overview
-Stage 1 demonstrates pure Ansible automation for deploying a containerized application stack. This stage focuses on configuration management, role-based organization, and automated deployment workflows.
+## 📦 Prerequisites
 
-### Key Features
-- **Role-based Architecture**: Modular Ansible roles for each service
-- **Idempotent Deployments**: Safe to run multiple times
-- **Error Handling**: Comprehensive error handling with blocks/rescue
-- **Tag-based Execution**: Selective deployment of components
-- **Variable Management**: Centralized configuration management
-- **Container Management**: Docker container lifecycle management
-- **Data Persistence**: MongoDB data persistence across restarts
-- **Network Management**: Docker network configuration
-- 
+- Google Cloud Platform account with GKE enabled
+- `kubectl` configured to connect to your GKE cluster
+- Docker images pushed to Docker Hub:
+  - `sophiesky12/clients-latest:v1.0.0`
+  - `sophiesky12/backend-final:v1.0.0`
+
+## 🚀 How to Run This Project
 
 ### Prerequisites
-```bash
-# Install required tools
-sudo apt update
-sudo apt install -y ansible vagrant virtualbox git curl
+- Google Cloud Platform account with billing enabled
+- `gcloud` CLI installed and authenticated  
+- `kubectl` installed
+- Git installed
 
-# Verify installations
-ansible --version    # Should be 2.9+
-vagrant --version    # Should be 2.2+
-```
-
-
-#### Quick Start
+### Step 1: Clone and Setup
 ```bash
 # Clone the repository
 git clone https://github.com/Sophie-Muchiri12/yolo.git
 cd yolo
 
-# Start VM and deploy application
-vagrant up
-ansible-playbook playbook.yml
-
-# Access the application
-# Frontend: http://localhost:3000
-# Backend:  http://localhost:5000
-# MongoDB:  mongodb://localhost:27017
+# Verify you have the required tools
+gcloud version
+kubectl version --client
 ```
 
-#### Step-by-Step Deployment
+### Step 2: Create GKE Cluster
 ```bash
-# 1. Start and configure VM
-vagrant up
+# Create cluster (takes 5-10 minutes)
+gcloud container clusters create yolo-cluster \
+    --num-nodes=3 \
+    --zone=us-central1-a \
+    --machine-type=e2-small
 
-# 2. Test Ansible connectivity
-ansible webservers -m ping
+# Get cluster credentials
+gcloud container clusters get-credentials yolo-cluster --zone=us-central1-a
 
-# 3. Run complete deployment
-ansible-playbook playbook.yml
-
-
-# 4. Verify deployment
-
-http://localhost:5000/api
-http://localhost:3000
+# Verify connection
+kubectl get nodes
 ```
 
-#### Stage 1 Role Descriptions
+### Step 3: Deploy Application
+```bash
 
-**Common Role** (`roles/common/`)
-- System package installation and updates
-- Application directory creation
-- Repository cloning from GitHub
-- User and permission management
+# 1. Deploy MongoDB StatefulSet
+kubectl apply -f k8s/mongodb-statefulset.yaml
 
-**Docker Role** (`roles/docker/`)
-- Docker and Docker Compose installation
-- Docker service configuration
-- User group management
-- Docker network creation
+# 2. Deploy Backend
+kubectl apply -f k8s/backend-deployment.yaml
 
-**Database Role** (`roles/database/`)
-- MongoDB container deployment
-- Data volume management
-- Database initialization
-- Health check verification
+# 3. Deploy Frontend
+kubectl apply -f k8s/frontend-deployment.yaml
 
-**Backend Role** (`roles/backend/`)
-- Node.js API container building
-- Environment variable configuration
-- Database connection setup
-- API health verification
-
-**Frontend Role** (`roles/frontend/`)
-- React application container building
-- Static asset management
-- Backend API connection
-- Web server configuration
-
-
-
-<img width="1200" height="690" alt="image" src="https://github.com/user-attachments/assets/8bd16dcb-867a-47c8-829f-0f64676b1e36" />
-
-
-### Stage 2: Terraform + Ansible Integration
-
-#### Architecture
-This stage implements a hybrid IaC approach where:
-
-Terraform handles infrastructure provisioning (VM creation, networking, etc.)
-Ansible manages configuration and application deployment
-Integration allows both tools to invoke each other for seamless automation
-
-#### Key Features
-🚀 Single Command Deployment
-bash
-```
-ansible-playbook deploy.yml
-
+# 4. Check status
+kubectl get pods,services
 ```
 
-This  will:
+### Step 4: Access Your Application
+```bash
+# Get YOUR unique external IP (will be different from the demo)
+kubectl get all
 
-Provision infrastructure using Terraform
-Configure the provisioned resources
-Deploy the complete YOLO e-commerce application
+# Once EXTERNAL-IP appears (not <pending>):
+# Your application will be at: http://[YOUR-UNIQUE-EXTERNAL-IP]
+```
+
+**Important**: Your deployed instance will have a **different IP address** than the demo URL above. Each GKE cluster gets its own unique external IP addresses.
+
+### Step 5: Verify Functionality
+1. Open application in browser
+2. Add items to cart
 
 
-<img width="1291" height="687" alt="image" src="https://github.com/user-attachments/assets/49692d6b-ebd4-44e3-8229-0a08deedac01" />
+## 📁 Project Structure
+
+```
+yolo/
+├── k8s/
+│   ├── mongodb-statefulset.yaml      # MongoDB StatefulSet with persistent storage
+│   ├── backend-deployment.yaml       # Backend API deployment and service
+│   ├── frontend-deployment.yaml      # Frontend deployment and LoadBalancer service
+                       # Cleanup script
+├── README.md                        # This file
+└── explanation.md                   # Detailed implementation explanation
+```
 
 
-#### Project Commits:
-
-Check all closed pull requests, their messages and number of commits on each closed pull request
 
 
 
-#### Pure Dockerized work
+## 🗄️ Database Persistence
 
-My complete dockerized implementation is available in the docker-main branch. This branch contains the pure Docker setup for the entire project.
+The application uses a **StatefulSet** for MongoDB deployment with persistent volumes:
+- Data persists across pod restarts and rescheduling
+- Uses Google Persistent Disk for reliable storage
+- Automatic volume provisioning through PVC templates
+
+
+## 🔍 Monitoring and Troubleshooting
+
+### Check Application Status
+```bash
+# View all pods
+kubectl get pods
+
+# Check service endpoints
+kubectl get services
+
+# View persistent volumes
+kubectl get pv,pvc
+
+# Check pod logs
+kubectl logs -f deployment/backend-deployment
+kubectl logs -f deployment/frontend-deployment
+kubectl logs -f mongodb-0
+```
+
+### Common Issues
+
+1. **Pods not starting**: Check `kubectl describe pod [pod-name]` for detailed error information
+2. **Service not accessible**: Verify external IP assignment with `kubectl get services`
+3. **Database connection errors**: Ensure MongoDB pod is running and ready
+
+
+## 🏷️ Image Tags and Versions
+
+- **Frontend**: `sophie-muchiri12/yolo-frontend:latest`
+- **Backend**: `sophiesky12/clients-latest:v1.0.0`
+ntainerization best practices
