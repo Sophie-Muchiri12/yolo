@@ -99,6 +99,19 @@ kubectl get all
 
 **Important**: Your deployed instance will have a **different IP address** than the demo URL above. Each GKE cluster gets its own unique external IP addresses.
 
+Frontend: 
+
+<img width="1296" height="678" alt="image" src="https://github.com/user-attachments/assets/966c47bd-9f7c-413d-9d70-57d270a29300" />
+
+
+Backend:
+
+<img width="1296" height="678" alt="image" src="https://github.com/user-attachments/assets/d6681422-d494-4c26-ad9b-2318893f4dfb" />
+
+
+
+
+
 ### Step 5: Verify Functionality
 1. Open application in browser
 2. Add items to cart
