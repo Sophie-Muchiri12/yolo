@@ -82,6 +82,12 @@ kubectl apply -f k8s/frontend-deployment.yaml
 kubectl get pods,services
 ```
 
+
+<img width="860" height="325" alt="image" src="https://github.com/user-attachments/assets/58a829a4-98c1-4a54-9f8e-70a6e65639c6" />
+
+
+
+
 ### Step 4: Access Your Application
 ```bash
 # Get YOUR unique external IP (will be different from the demo)
